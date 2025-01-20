@@ -1,5 +1,6 @@
 import AuthSessionProvider from '@/context/AuthSessionProvider'
 import './globals.css'
+import './admin.css'
 import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'] })

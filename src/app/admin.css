@@ -1,0 +1,33 @@
+@keyframes soldStamp {
+    0% {
+      transform: rotate(-35deg) scale(0);
+      opacity: 0;
+    }
+    50% {
+      transform: rotate(-35deg) scale(1.5);
+      opacity: 0.5;
+    }
+    100% {
+      transform: rotate(-35deg) scale(1);
+      opacity: 1;
+    }
+  }
+  
+  .sold-stamp {
+    z-index: 100;
+    position: absolute;
+    /* top: 50%; */
+    left: 42%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    font-size: 1rem;
+    font-weight: bold;
+    color: rgba(220, 38, 38, 0.8);
+    border: 0.2rem solid rgba(220, 38, 38, 0.8);
+    padding: 0.2rem;
+    border-radius: .5rem;
+    text-transform: uppercase;
+    animation: soldStamp 0.5s ease-out forwards;
+    cursor: not-allowed;
+  }
+  
+  

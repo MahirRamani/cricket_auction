@@ -1,9 +1,11 @@
-import AdminRatingInterface from '@/components/AdminRatingInterface';
+'use client';
 
-export default function AdminRatingsPage() {
+import { AdminRatingInterface } from '@/components/AdminRatingInterface';
+
+export default function AdminRating() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Admin Rating Interface</h1>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Admin Rating Dashboard</h1>
       <AdminRatingInterface />
     </div>
   );

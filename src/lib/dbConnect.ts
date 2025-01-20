@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import Player from '@/models/User';
 
 const MONGODB_URI = process.env.MONGODB_URI;
 

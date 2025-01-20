@@ -6,7 +6,7 @@ export async function GET() {
   await dbConnect();
 
   try {
-    const players = await Player.find({ isCreacketChoosen: true }).select('-password');
+    const players = await Player.find({ isCricketChosen: true }).select('-password');
     console.log(players);
 
     return NextResponse.json(players);

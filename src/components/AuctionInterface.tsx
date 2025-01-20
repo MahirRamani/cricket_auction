@@ -1,102 +1,427 @@
-'use client';
+"use client"
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { toast } from "@/components/ui/use-toast"
+import { PlayerCard } from "@/components/PlayerCard"
+
+interface Team {
+  _id: string
+  name: string
+}
 
 interface Player {
-  _id: string;
-  name: string;
-  rollNumber: string;
-  averageRating: number;
-  isSold: boolean;
+  _id: string
+  name: string
+  rollNumber: string
+  rating: number
+  imageUrl: string
+  team: string | null
+  soldPrice: number
+  isSold: boolean
 }
 
-export default function AuctionInterface() {
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+interface AuctionInterfaceProps {
+  filter: number[]
+}
+
+export function AuctionInterface({ filter }: AuctionInterfaceProps) {
+  const [players, setPlayers] = useState<Player[]>([])
+  const [teams, setTeams] = useState<Team[]>([])
+  const [error, setError] = useState("")
 
   useEffect(() => {
-    fetchPlayers();
-  }, []);
+    fetchData()
+  }, [])
 
-  const fetchPlayers = async () => {
+  const fetchData = async () => {
     try {
-      const response = await fetch('/api/players');
-      if (!response.ok) throw new Error('Failed to fetch players');
-      const data = await response.json();
-      setPlayers(data);
-    } catch (err) {
-      setError('Failed to load players');
-    } finally {
-      setLoading(false);
-    }
-  };
+      const [playersRes, teamsRes] = await Promise.all([fetch("/api/players"), fetch("/api/teams")])
 
-  const handleSold = async (playerId: string) => {
+      if (playersRes.ok && teamsRes.ok) {
+        const [playersData, teamsData] = await Promise.all([playersRes.json(), teamsRes.json()])
+        setPlayers(playersData)
+        setTeams(teamsData)
+      } else {
+        setError("Failed to fetch data")
+      }
+    } catch (error) {
+      setError("An error occurred. Please try again.")
+    }
+  }
+
+  const handleTeamChange = async (playerId: string, teamId: string) => {
     try {
-      const response = await fetch(`/api/players/${playerId}/sold`, {
-        method: 'PATCH',
-      });
+      const res = await fetch(`/api/players/${playerId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ team: teamId }),
+      })
 
-      if (!response.ok) throw new Error('Failed to mark player as sold');
-
-      setPlayers(players.map(player => 
-        player._id === playerId ? { ...player, isSold: true } : player
-      ));
-    } catch (err) {
-      setError('Failed to mark player as sold');
+      if (res.ok) {
+        setPlayers((prevPlayers) =>
+          prevPlayers.map((player) => (player._id === playerId ? { ...player, team: teamId } : player)),
+        )
+        toast({
+          title: "Success",
+          description: "Team updated successfully",
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update team",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+        variant: "destructive",
+      })
     }
-  };
+  }
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  const handlePriceChange = async (playerId: string, price: number) => {
+    try {
+      const res = await fetch(`/api/players/${playerId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ soldPrice: price }),
+      })
+
+      if (res.ok) {
+        setPlayers((prevPlayers) =>
+          prevPlayers.map((player) => (player._id === playerId ? { ...player, soldPrice: price } : player)),
+        )
+        toast({
+          title: "Success",
+          description: "Price updated successfully",
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update price",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleSold = async (playerId: string, teamId: string, price: number) => {
+    try {
+      const res = await fetch(`/api/players/${playerId}/sold`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ team: teamId, soldPrice: price }),
+      })
+
+      if (res.ok) {
+        setPlayers((prevPlayers) =>
+          prevPlayers.map((player) =>
+            player._id === playerId ? { ...player, isSold: true, team: teamId, soldPrice: price } : player,
+          ),
+        )
+        toast({
+          title: "Success",
+          description: "Player marked as sold",
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to mark player as sold",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const getTeamName = (teamId: string | null) => {
+    if (!teamId) return "N/A"
+    const team = teams.find((t) => t._id === teamId)
+    return team ? team.name : "Unknown Team"
+  }
+
+  const filteredPlayers = players.filter((player) => filter.length === 0 || filter.includes(Math.floor(player.rating)))
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {players.map(player => (
-        <div key={player._id} className={`bg-white shadow-md rounded-lg p-6 ${player.isSold ? 'opacity-50' : ''}`}>
-          <div className="flex items-center mb-4">
-            <Image
-              src={`/placeholder.svg?height=100&width=100`}
-              alt={player.name}
-              width={100}
-              height={100}
-              className="rounded-full mr-4"
+    <div className="space-y-8">
+      <Button onClick={fetchData}>Refresh Data</Button>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {filteredPlayers.map((player) => (
+          <div key={player._id} className="relative">
+            <PlayerCard
+              player={{
+                ...player,
+                team: getTeamName(player.team),
+              }}
+              showRating={true}
+              isAdmin={true}
+              isSold={player.isSold}
+              showTeamAndPrice={true}
             />
-            <div>
-              <h2 className="text-xl font-semibold">{player.name}</h2>
-              <p className="text-gray-600">Roll Number: {player.rollNumber}</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex">
-              {[1, 2, 3, 4, 5].map(star => (
-                <span
-                  key={star}
-                  className={`text-2xl ${
-                    star <= player.averageRating ? 'text-yellow-400' : 'text-gray-300'
-                  }`}
+            <div className="mt-4">
+              <label className="block mb-2">
+                Team:
+                <select
+                  value={player.team || ""}
+                  onChange={(e) => handleTeamChange(player._id, e.target.value)}
+                  className="w-full p-2 border rounded"
                 >
-                  ★
-                </span>
-              ))}
+                  <option value="">Select Team</option>
+                  {teams.map((team) => (
+                    <option key={team._id} value={team._id}>
+                      {team.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
-            {!player.isSold ? (
-              <button
-                onClick={() => handleSold(player._id)}
-                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
-                aria-label={`Mark ${player.name} as sold`}
-              >
-                Sold
-              </button>
-            ) : (
-              <span className="text-green-600 font-semibold">Sold</span>
+            <div className="mt-4">
+              <label className="block mb-2">
+                Price:
+                <input
+                  type="number"
+                  value={player.soldPrice}
+                  onChange={(e) => handlePriceChange(player._id, Number(e.target.value))}
+                  className="w-full p-2 border rounded"
+                />
+              </label>
+            </div>
+            {!player.isSold && (
+              <Button onClick={() => handleSold(player._id, player.team!, player.soldPrice)} className="mt-4 w-full">
+                Mark as Sold
+              </Button>
             )}
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
-  );
+  )
 }
+
+// 'use client';
+
+// import { useState, useEffect } from 'react';
+// import Image from 'next/image';
+// import { Button } from '@/components/ui/button';
+// import { toast } from '@/components/ui/use-toast';
+
+// interface Team {
+//   _id: string;
+//   name: string;
+// }
+
+// interface Player {
+//   _id: string;
+//   name: string;
+//   rollNumber: string;
+//   rating: number;
+//   imageUrl: string;
+//   team: string | null;
+//   soldPrice: number;
+//   isSold: boolean;
+// }
+
+// export function AuctionInterface() {
+//   const [players, setPlayers] = useState<Player[]>([]);
+//   const [teams, setTeams] = useState<Team[]>([]);
+//   const [error, setError] = useState('');
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         const [playersRes, teamsRes] = await Promise.all([
+//           fetch('/api/players'),
+//           fetch('/api/teams')
+//         ]);
+        
+//         if (playersRes.ok && teamsRes.ok) {
+//           const [playersData, teamsData] = await Promise.all([
+//             playersRes.json(),
+//             teamsRes.json()
+//           ]);
+//           setPlayers(playersData);
+//           setTeams(teamsData);
+//         } else {
+//           setError('Failed to fetch data');
+//         }
+//       } catch (error) {
+//         setError('An error occurred. Please try again.');
+//       }
+//     };
+
+//     fetchData();
+//   }, []);
+
+//   const handleTeamChange = async (playerId: string, teamId: string) => {
+//     try {
+//       const res = await fetch(`/api/players/${playerId}`, {
+//         method: 'PATCH',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ team: teamId }),
+//       });
+
+//       if (res.ok) {
+//         setPlayers((prevPlayers) =>
+//           prevPlayers.map((player) =>
+//             player._id === playerId ? { ...player, team: teamId } : player
+//           )
+//         );
+//         toast({
+//           title: "Success",
+//           description: "Team updated successfully",
+//         });
+//       } else {
+//         toast({
+//           title: "Error",
+//           description: "Failed to update team",
+//           variant: "destructive",
+//         });
+//       }
+//     } catch (error) {
+//       toast({
+//         title: "Error",
+//         description: "An error occurred. Please try again.",
+//         variant: "destructive",
+//       });
+//     }
+//   };
+
+//   const handlePriceChange = async (playerId: string, price: number) => {
+//     try {
+//       const res = await fetch(`/api/players/${playerId}`, {
+//         method: 'PATCH',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ soldPrice: price }),
+//       });
+
+//       if (res.ok) {
+//         setPlayers((prevPlayers) =>
+//           prevPlayers.map((player) =>
+//             player._id === playerId ? { ...player, soldPrice: price } : player
+//           )
+//         );
+//         toast({
+//           title: "Success",
+//           description: "Price updated successfully",
+//         });
+//       } else {
+//         toast({
+//           title: "Error",
+//           description: "Failed to update price",
+//           variant: "destructive",
+//         });
+//       }
+//     } catch (error) {
+//       toast({
+//         title: "Error",
+//         description: "An error occurred. Please try again.",
+//         variant: "destructive",
+//       });
+//     }
+//   };
+
+//   const handleSold = async (playerId: string, teamId: string, price: number) => {
+//     try {
+//       const res = await fetch(`/api/players/${playerId}/sold`, {
+//         method: 'PATCH',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ team: teamId, soldPrice: price }),
+//       });
+
+//       if (res.ok) {
+//         setPlayers((prevPlayers) =>
+//           prevPlayers.map((player) =>
+//             player._id === playerId ? { ...player, isSold: true, team: teamId, soldPrice: price } : player
+//           )
+//         );
+//         toast({
+//           title: "Success",
+//           description: "Player marked as sold",
+//         });
+//       } else {
+//         toast({
+//           title: "Error",
+//           description: "Failed to mark player as sold",
+//           variant: "destructive",
+//         });
+//       }
+//     } catch (error) {
+//       toast({
+//         title: "Error",
+//         description: "An error occurred. Please try again.",
+//         variant: "destructive",
+//       });
+//     }
+//   };
+
+//   return (
+//     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+//       {players.map((player) => (
+//         <div key={player._id} className="border p-4 rounded-lg shadow-md">
+//           <Image
+//             src={player.imageUrl || "/placeholder.svg"}
+//             alt={player.name}
+//             width={200}
+//             height={200}
+//             className="w-full h-48 object-cover mb-4 rounded"
+//           />
+//           <h2 className="text-xl font-semibold">{player.name}</h2>
+//           <p>Roll Number: {player.rollNumber}</p>
+//           <p>Rating: {player.rating.toFixed(1)}</p>
+//           <div className="mt-4">
+//             <label className="block mb-2">
+//               Team:
+//               <select
+//                 value={player.team || ''}
+//                 onChange={(e) => handleTeamChange(player._id, e.target.value)}
+//                 className="w-full p-2 border rounded"
+//               >
+//                 <option value="">Select Team</option>
+//                 {teams.map((team) => (
+//                   <option key={team._id} value={team._id}>
+//                     {team.name}
+//                   </option>
+//                 ))}
+//               </select>
+//             </label>
+//           </div>
+//           <div className="mt-4">
+//             <label className="block mb-2">
+//               Price:
+//               <input
+//                 type="number"
+//                 value={player.soldPrice}
+//                 onChange={(e) => handlePriceChange(player._id, Number(e.target.value))}
+//                 className="w-full p-2 border rounded"
+//               />
+//             </label>
+//           </div>
+//           {!player.isSold && (
+//             <Button
+//               onClick={() => handleSold(player._id, player.team!, player.soldPrice)}
+//               className="mt-4 w-full"
+//             >
+//               Mark as Sold
+//             </Button>
+//           )}
+//           {player.isSold && <p className="mt-4 text-green-600">Sold</p>}
+//         </div>
+//       ))}
+//     </div>
+//   );
+// }
 
