@@ -59,7 +59,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token._id = user._id?.toString()
-        token.isVarified = user.isVerified
+        // token.isVarified = user.isVerified
         token.mobileNumber = user.mobileNumber
         token.isCricketSelected = user.isCricketSelected
         // token.role = user.role
@@ -69,7 +69,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token) {
         session.user._id = token._id
-        session.user.isVerified = token.isVarified
+        // session.user.isVerified = token.isVarified
         session.user.mobileNumber = token.mobileNumber
         session.user.isCricketSelected = token.isCricketSelected
         // session.user.role = token.role

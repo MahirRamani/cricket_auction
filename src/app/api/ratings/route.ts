@@ -9,14 +9,17 @@ export async function POST(req: Request) {
   await dbConnect()
   const session = await getServerSession(authOptions)
 
-  if (!session || !session.user || !session.user.id) {
+  console.log("session", session);
+  
+  
+  if (!session || !session.user || !session.user._id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
   const { ratings } = await req.json()
 
   try {
-    const voter = await Player.findById(session.user.id)
+    const voter = await Player.findById(session.user._id)
     if (!voter) {
       return NextResponse.json({ error: "Voter not found" }, { status: 404 })
     }
@@ -28,21 +31,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "You must rate at least 5 players" }, { status: 400 })
     }
 
-    const fiveStarCount = ratings.filter((r: any) => r.rating === 5).length
-    const oneStarCount = ratings.filter((r: any) => r.rating === 1).length
+    // const fiveStarCount = ratings.filter((r: any) => r.rating === 5).length
+    // const oneStarCount = ratings.filter((r: any) => r.rating === 1).length
 
-    if (fiveStarCount > 10 || oneStarCount > 1) {
-      return NextResponse.json({ error: "Invalid rating distribution" }, { status: 400 })
-    }
+    // if (fiveStarCount > 10 || oneStarCount > 1) {
+    //   return NextResponse.json({ error: "Invalid rating distribution" }, { status: 400 })
+    // }
 
-    await Rating.insertMany(ratings.map((r: any) => ({ ...r, voterId: session.user.id })))
+    await Rating.insertMany(ratings.map((r: any) => ({ ...r, voterId: session.user._id })))
 
     // Update player ratings
     for (const rating of ratings) {
       await Player.findByIdAndUpdate(rating.playerId, { $inc: { rating: rating.rating, votesReceived: 1 } })
     }
 
-    await Player.findByIdAndUpdate(session.user.id, { hasVoted: true })
+    await Player.findByIdAndUpdate(session.user._id, { hasVoted: true })
 
     return NextResponse.json({ message: "Ratings submitted successfully" })
   } catch (error) {

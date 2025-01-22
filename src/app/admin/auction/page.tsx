@@ -1,41 +1,134 @@
-"use client"
+// "use client"
 
-import { useState } from "react"
-import { AuctionInterface } from "@/components/AuctionInterface"
-import { AuctionExpenseTable } from "@/components/AuctionExpenseTable"
-import { Button } from "@/components/ui/button"
+// import { useState } from "react"
+// import { Button } from "@/components/ui/button"
+// import { AuctionInterface } from "@/components/AuctionInterface"
+
+// export default function AdminAuction() {
+//   const [filter, setFilter] = useState<number[]>([])
+
+//   const handleFilterChange = (star: number) => {
+//     setFilter((prev) => (prev.includes(star) ? prev.filter((s) => s !== star) : [...prev, star]))
+//   }
+
+//   return (
+//     <div className="container mx-auto p-4">
+//       <h1 className="text-2xl font-bold mb-4">Admin Auction</h1>
+//       <div className="mb-4">
+//         Filter by stars:
+//         {[1, 2, 3, 4, 5].map((star) => (
+//           <Button
+//             key={star}
+//             onClick={() => handleFilterChange(star)}
+//             variant={filter.includes(star) ? "default" : "outline"}
+//             className="ml-2"
+//           >
+//             {star} ★
+//           </Button>
+//         ))}
+//       </div>
+//       <AuctionInterface filter={filter} />
+//     </div>
+//   )
+// }
+
+import { BiddingInterface } from "@/components/BiddingInterface"
 
 export default function AdminAuction() {
-  const [showExpenseTable, setShowExpenseTable] = useState(false)
-  const [filter, setFilter] = useState<number[]>([])
-
-  const handleFilterChange = (star: number) => {
-    setFilter((prev) => (prev.includes(star) ? prev.filter((f) => f !== star) : [...prev, star]))
-  }
-
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Admin Auction</h1>
-      <div className="mb-4">
-        Filter by stars:
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Button
-            key={star}
-            onClick={() => handleFilterChange(star)}
-            variant={filter.includes(star) ? "default" : "outline"}
-            className="ml-2"
-          >
-            {star} {"\u2605"}
-          </Button>
-        ))}
-      </div>
-      <Button onClick={() => setShowExpenseTable(!showExpenseTable)} className="mb-4">
-        {showExpenseTable ? "Show Auction Interface" : "Show Expense Table"}
-      </Button>
-      {showExpenseTable ? <AuctionExpenseTable /> : <AuctionInterface filter={filter} />}
+      <BiddingInterface />
     </div>
   )
 }
+
+
+
+// "use client"
+
+// import { useState } from "react"
+// import { Button } from "@/components/ui/button"
+// import { AuctionInterface } from "@/components/AuctionInterface"
+// import { AuctionExpenseTable } from "@/components/AuctionExpenseTable"
+
+// export default function AdminAuction() {
+//   const [filter, setFilter] = useState<number[]>([])
+
+//   const handleFilterChange = (star: number) => {
+//     setFilter((prev) => (prev.includes(star) ? prev.filter((s) => s !== star) : [...prev, star]))
+//   }
+
+//   return (
+//     <div className="container mx-auto p-4">
+//       <h1 className="text-2xl font-bold mb-4">Admin Auction</h1>
+//       <div className="mb-4">
+//         Filter by stars:
+//         {[1, 2, 3, 4, 5].map((star) => (
+//           <Button
+//             key={star}
+//             onClick={() => handleFilterChange(star)}
+//             variant={filter.includes(star) ? "default" : "outline"}
+//             className="ml-2"
+//           >
+//             {star} ★
+//           </Button>
+//         ))}
+//       </div>
+//       <div className="">
+//         <div>
+//           <AuctionInterface filter={filter} />
+//         </div>
+//         <div>
+//           {/* <AuctionExpenseTable /> */}
+//         </div>
+//       </div>
+//     </div>
+//   )
+// }
+
+
+// // working
+// "use client"
+
+// import { useState } from "react"
+// import { AuctionInterface } from "@/components/AuctionInterface"
+// import { AuctionExpenseTable } from "@/components/AuctionExpenseTable"
+// import { Button } from "@/components/ui/button"
+
+// export default function AdminAuction() {
+//   const [showExpenseTable, setShowExpenseTable] = useState(false)
+//   const [filter, setFilter] = useState<number[]>([])
+
+//   const handleFilterChange = (star: number) => {
+//     setFilter((prev) => (prev.includes(star) ? prev.filter((f) => f !== star) : [...prev, star]))
+//   }
+
+//   return (
+//     <div className="container mx-auto p-4">
+//       {/* <h1 className="text-2xl font-bold mb-4">Admin Auction</h1> */}
+//       <div className="mb-4">
+//         Filter by stars:
+//         {[1, 2, 3, 4, 5].map((star) => (
+//           <Button
+//             key={star}
+//             onClick={() => handleFilterChange(star)}
+//             variant={filter.includes(star) ? "default" : "outline"}
+//             className="ml-2"
+//           >
+//             {star} {"\u2605"}
+//           </Button>
+//         ))}
+//       </div>
+//       <Button onClick={() => setShowExpenseTable(!showExpenseTable)} className="mb-4">
+//         {showExpenseTable ? "Show Auction Interface" : "Show Expense Table"}
+//       </Button>
+//       {showExpenseTable ? <AuctionExpenseTable /> : <AuctionInterface filter={filter} />}
+//       {/* <AuctionExpenseTable /> */}
+//       {/* <AuctionInterface filter={[]}/> */}
+//     </div>
+//   )
+// }
 
 
 
