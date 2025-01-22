@@ -3,12 +3,15 @@ import dbConnect from '@/lib/dbConnect';
 import Player from '@/models/User';
 
 export async function GET() {
-  await dbConnect();
+  // await dbConnect();
+  console.log("GET--------------------------------------------------");
+  
 
   try {
-    const players = await Player.find({ isCricketChosen: true }).select('-password');
-    console.log(players);
-
+    const players = await Player.find({ isCricketChosen: true });
+    // console.log(players);
+    console.log("players");
+    
     return NextResponse.json(players);
   } catch (error) {
     console.error(error);

@@ -10,8 +10,9 @@ export interface IUser extends Document {
   votesReceived: number;
   hasVoted: boolean;
   isSold: boolean;
-  team: mongoose.Types.ObjectId | null;
+  team: string;
   soldPrice: number;
+  round: number;
 }
 
 const UserSchema: Schema = new Schema({
@@ -24,8 +25,9 @@ const UserSchema: Schema = new Schema({
   votesReceived: { type: Number, default: 0 },
   hasVoted: { type: Boolean, default: false },
   isSold: { type: Boolean, default: false },
-  team: { type: Schema.Types.ObjectId, ref: 'Team', default: null },
+  team: { type: String },
   soldPrice: { type: Number, default: 0 },
+  round: { type: Number, default: 0 }
 });
 
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

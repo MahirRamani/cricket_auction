@@ -19,8 +19,8 @@ export interface IPlayer {
   
   const TeamSchema: Schema = new Schema({
     name: { type: String, required: true, unique: true },
-    budget: { type: Number, required: true, default: 1000000 }, // Default budget of 10 lakhs
-    players: { type: [PlayerSchema], default: [{ name: "Default Player", price: 100000 }] },
+    budget: { type: Number, required: true, default: 80000 }, // Default budget of 10 lakhs
+    players: { type: [PlayerSchema]},
   });
 
 export default mongoose.models.Team || mongoose.model<ITeam>("Team", TeamSchema)

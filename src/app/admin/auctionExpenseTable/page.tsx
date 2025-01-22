@@ -14,7 +14,7 @@ interface Team {
   }[]
 }
 
-export function AuctionExpenseTable() {
+export default function AuctionExpenseTable() {
   const [teams, setTeams] = useState<Team[]>([])
 
   useEffect(() => {
